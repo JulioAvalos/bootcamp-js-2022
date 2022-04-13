@@ -1,40 +1,32 @@
-import { applyMiddleware, createStore } from 'redux';
-// import { ui } from './ui';
+import { applyMiddleware, combineReducers, createStore } from 'redux';
+import { createBrowserHistory } from 'history';
+import { connectRouter, routerMiddleware } from 'connected-react-router';
+import apiMiddleware from './api-redux';
 import * as $store from './store';
 
-const savedState = sessionStorage.getItem('state');
-const deserialized = savedState && JSON.parse(savedState);
-const preloadedState = deserialized || {
+const history = createBrowserHistory();
+
+const preloadedState = {
   producto: {},
   productos: [],
 };
 
 const middlewares = applyMiddleware(
   $store.loggerMiddleware,
-  $store.agregarOModificarProductoMiddleware,
-  $store.generadorCodigoProductoBuilder(0),
-  $store.storageMiddleware
+  routerMiddleware(history),
+  apiMiddleware,
+  $store.agregarOModificarProductoMiddleware
+  // $store.generadorCodigoProductoBuilder(0),
+  // $store.storageMiddleware
 );
-const store = createStore($store.reducer, preloadedState, middlewares);
 
+const reducer = combineReducers({
+  router: connectRouter(history),
+  producto: $store.producto,
+  productos: $store.productos,
+});
+
+const store = createStore(reducer, preloadedState, middlewares);
+
+export { history };
 export default store;
-
-// store.subscribe(dispatchOnChange(store, (state) => {
-//   ui.renderForm(state.producto);
-//   ui.renderTable(state.productos);
-// }));
-
-// ui.onFormSubmit = (producto) => store.dispatch($store.agregarOModificarProducto(producto));
-// ui.onEliminarClick = (codigo) => store.dispatch($store.productoEliminado(codigo));
-// ui.onEditarClick = (codigo) => store.dispatch($store.productoSeleccionado(codigo));
-
-// function dispatchOnChange(store, dispatch) {
-//   let latestState;
-//   return function () {
-//     let currentState = store.getState();
-//     if (currentState != latestState) {
-//       latestState = currentState;
-//       dispatch(currentState);
-//     }
-//   }
-// }

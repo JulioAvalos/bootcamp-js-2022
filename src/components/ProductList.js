@@ -1,9 +1,9 @@
-import React from 'react';
+import React, {useEffect} from 'react';
+import { Link} from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { productoEliminado, productoSeleccionado } from '../store/store';
 
 const ProductItem = ({ producto, acciones }) => {
-
 
   return (
     <tr>
@@ -14,14 +14,13 @@ const ProductItem = ({ producto, acciones }) => {
       <td>{producto.total}</td>
       <td>
         <div className='btn-group'>
-          <a
+          <Link
             title='editar'
-            href='#'
+            to={`/editar/${producto.codigo}`}
             className='btn btn-sm btn-outline-secondary'
-            onClick={() => acciones.seleccionar(producto.codigo)}
           >
             <i className='bi bi-pencil-square'></i>
-          </a>
+          </Link>
           <a
             title='eliminar'
             href='#'
@@ -41,33 +40,15 @@ const ProductList = () => {
   const productos = useSelector(state => state.productos);
   const dispatch = useDispatch();
   
-  // [
-  //   {
-  //     codigo: 1,
-  //     nombre: 'Producto A',
-  //     cantidad: 10,
-  //     precio: 100,
-  //     total: 1000,
-  //   },
-  //   {
-  //     codigo: 2,
-  //     nombre: 'Producto A',
-  //     cantidad: 10,
-  //     precio: 100,
-  //     total: 1000,
-  //   },
-  // ];
-
-  const seleccionar = (codigo) => {
-    dispatch(productoSeleccionado(codigo));
-  };
+  useEffect(() => {
+    dispatch({type: "obtener-productos"});
+  }, []);
 
   const eliminar = (codigo) => {
     dispatch(productoEliminado(codigo));
   };
 
   const acciones = {
-    seleccionar,
     eliminar,
   };
 
